@@ -63,7 +63,7 @@
         });    
         initApp();
         askRating();
-        //document.getElementById("screen").style.display = 'none';
+        document.getElementById("screen").style.display = 'none';
     }
 
 function askRating()
