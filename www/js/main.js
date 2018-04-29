@@ -55,7 +55,8 @@
         if( /(android)/i.test(navigator.userAgent) )
             AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
         else
-            document.getElementById("screen").style.display = 'none';          
+            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
+            //document.getElementById("screen").style.display = 'none';          
     }
 
    function checkFirstUse()
