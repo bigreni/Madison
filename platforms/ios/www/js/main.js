@@ -41,12 +41,15 @@
             document.getElementById("screen").style.display = 'none';
         });
         document.addEventListener('onAdLoaded', function (data) {
-            AdMob.showInterstitial();
+            document.getElementById("screen").style.display = 'none';
         });
         document.addEventListener('onAdPresent', function (data) { });
-        document.addEventListener('onAdLeaveApp', function (data) { });
+        document.addEventListener('onAdLeaveApp', function (data) { 
+            document.getElementById("screen").style.display = 'none';
+        });
         document.addEventListener('onAdDismiss', function (data) { 
-            document.getElementById("screen").style.display = 'none';        });
+            document.getElementById("screen").style.display = 'none';
+        });
     }
 
     function createSelectedBanner() {
@@ -55,8 +58,8 @@
 
     function loadInterstitial() {
         if ((/(android|windows phone)/i.test(navigator.userAgent))) {
-            //AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
-            document.getElementById("screen").style.display = 'none';     
+            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
+            //document.getElementById("screen").style.display = 'none';     
         } else if ((/(ipad|iphone|ipod)/i.test(navigator.userAgent))) {
             AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
             //document.getElementById("screen").style.display = 'none';     
@@ -102,6 +105,7 @@ AppRate.promptForRating(false);
 
 function loadFaves()
 {
+    showAd();
     window.location = "Favorites.html";
     //window.ga.trackView('Favorites');
 }
@@ -127,6 +131,19 @@ function saveFavorites()
         $("#message").text('Stop added to favorites!!');
 }
 
+function showAd()
+{
+    document.getElementById("screen").style.display = 'block';     
+    if ((/(android|windows phone)/i.test(navigator.userAgent))) {
+        AdMob.isInterstitialReady(function(isready){
+            alert('1');
+            if(isready) 
+                AdMob.showInterstitial();
+        });
+    }
+    document.getElementById("screen").style.display = 'none'; 
+}
+
 var	TransitMaster =	TransitMaster || {};
 
 TransitMaster.StopTimes = function (options) {
@@ -135,7 +152,6 @@ TransitMaster.StopTimes = function (options) {
 
     var timer = null;
     var initialView = true;
-    $('#simplemenu').sidr();
 
     initialize();
 
@@ -327,6 +343,7 @@ TransitMaster.StopTimes = function (options) {
     }
 
     function getArrivalTimes(refresh) {
+        showAd();
         if (!refresh) {
             reset(true);
             $("#stopWait").removeClass("hidden");
