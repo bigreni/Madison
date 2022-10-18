@@ -61,7 +61,7 @@
             AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
             //document.getElementById("screen").style.display = 'none';     
         } else if ((/(ipad|iphone|ipod)/i.test(navigator.userAgent))) {
-            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
+            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
             //document.getElementById("screen").style.display = 'none';     
         } else
         {
@@ -72,10 +72,8 @@
    function checkFirstUse()
     {
         TransitMaster.StopTimes({arrivals: true, headingLabel: "Arrival"});
-        //window.ga.startTrackerWithId('UA-88579601-7', 1, function(msg) {
-        //    window.ga.trackView('Home');
-        //});    
         initApp();
+        checkPermissions();
         askRating();
         //document.getElementById("screen").style.display = 'none';
     }
@@ -86,10 +84,32 @@
         document.getElementById("screen").style.display = 'none';
     }
 
-function askRating()
-{
-  AppRate.preferences = {
-  openStoreInApp: true,
+    function checkPermissions(){
+        const idfaPlugin = cordova.plugins.idfa;
+    
+        idfaPlugin.getInfo()
+            .then(info => {
+                if (!info.trackingLimited) {
+                    return info.idfa || info.aaid;
+                } else if (info.trackingPermission === idfaPlugin.TRACKING_PERMISSION_NOT_DETERMINED) {
+                    return idfaPlugin.requestPermission().then(result => {
+                        if (result === idfaPlugin.TRACKING_PERMISSION_AUTHORIZED) {
+                            return idfaPlugin.getInfo().then(info => {
+                                return info.idfa || info.aaid;
+                            });
+                        }
+                    });
+                }
+            });
+    }
+    
+    function askRating()
+    {
+    cordova.plugins.AppRate.setPreferences = {
+    reviewType: {
+        ios: 'AppStoreReview',
+        android: 'InAppBrowser'
+        },
   useLanguage:  'en',
   usesUntilPrompt: 10,
   promptAgainForEachNewVersion: true,
@@ -107,7 +127,6 @@ function loadFaves()
 {
     showAd();
     window.location = "Favorites.html";
-    //window.ga.trackView('Favorites');
 }
 
 function saveFavorites()
@@ -134,13 +153,12 @@ function saveFavorites()
 function showAd()
 {
     document.getElementById("screen").style.display = 'block';     
-    if ((/(android|windows phone)/i.test(navigator.userAgent))) {
-        AdMob.isInterstitialReady(function(isready){
-            alert('1');
-            if(isready) 
-                AdMob.showInterstitial();
-        });
-    }
+    // if ((/(ipad|iphone|ipod|android|windows phone)/i.test(navigator.userAgent))) {
+    //     AdMob.isInterstitialReady(function(isready){
+    //         if(isready) 
+    //             AdMob.showInterstitial();
+    //     });
+    // }
     document.getElementById("screen").style.display = 'none'; 
 }
 
