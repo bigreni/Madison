@@ -1,0 +1,6 @@
+framework module Pods_Madison_Bus_Tracker {
+  umbrella header "Pods-Madison Bus Tracker-umbrella.h"
+
+  export *
+  module * { export * }
+}
