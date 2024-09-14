@@ -28,9 +28,12 @@
       "cordova-plugin-dialogs": {},
       "cordova-plugin-nativestorage": {}
     },
-    "platforms": []
+    "platforms": [
+      "android"
+    ]
   },
   "devDependencies": {
+    "cordova-android": "^13.0.0",
     "cordova-plugin-apprate": "^1.8.0",
     "cordova-plugin-device": "^3.0.0",
     "cordova-plugin-dialogs": "^2.0.2",

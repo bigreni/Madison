@@ -1,0 +1,51 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "admob-plus-cordova": {
+      "APP_ID_ANDROID": "ca-app-pub-9249695405712287~7846661545",
+      "PLAY_SERVICES_VERSION": "23.0.0",
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-apprate": {
+      "PLAY_REVIEW_VERSION": "2.+",
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-dialogs": {
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-geolocation": {
+      "GPS_REQUIRED": "true",
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-idfa": {
+      "ANDROID_PLAY_ADID_VERSION": "17.0.+",
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-inappbrowser": {
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-nativestorage": {
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-purchase": {
+      "PACKAGE_NAME": "com.madison.free"
+    },
+    "cordova-plugin-wkwebview-file-xhr": {
+      "PACKAGE_NAME": "com.madison.free"
+    }
+  },
+  "dependent_plugins": {
+    "cordova-support-android-plugin": {
+      "PACKAGE_NAME": "com.madison.free"
+    }
+  }
+}
