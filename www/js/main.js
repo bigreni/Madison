@@ -132,8 +132,9 @@ function loadFaves()
 function saveFavorites()
 {
     var favStop = localStorage.getItem("Favorites");
-    var newFave = $('#MainMobileContent_routeList option:selected').val() + ">" + $("#MainMobileContent_directionList option:selected").val() + ">" + $("#MainMobileContent_stopList option:selected").val() + ":" + $('#MainMobileContent_routeList option:selected').text() + " > " + $("#MainMobileContent_directionList option:selected").text() + " > " + $("#MainMobileContent_stopList option:selected").text();
-        if (favStop == null)
+    var newFave = $('#MainMobileContent_routeList').val() + ">" + $("#MainMobileContent_directionList option:selected").val() + ">" + $("#MainMobileContent_stopList option:selected").val() + ":" + $('#MainMobileContent_routeList option:selected').text() + " > " + $("#MainMobileContent_directionList option:selected").text() + " > " + $("#MainMobileContent_stopList option:selected").text();
+    alert(newFave);
+    if (favStop == null)
         {
             favStop = newFave;
         }   
@@ -143,11 +144,11 @@ function saveFavorites()
         }
         else
         {
-            $("#message").text('Stop is already favorited!!');
+            //$("#message").text('Stop is already favorited!!');
             return;
         }
         localStorage.setItem("Favorites", favStop);
-        $("#message").text('Stop added to favorites!!');
+        //$("#message").text('Stop added to favorites!!');
 }
 
 function showAd()
@@ -174,37 +175,41 @@ TransitMaster.StopTimes = function (options) {
     initialize();
 
     function initialize() {
-        $("#MainMobileContent_routeList").bind("change", function () {
-            var temp = $("#MainContent_routeList").val();
+        $("#MainMobileContent_routeList").on('change', function(){getDirections();});
+        $("#MainMobileContent_directionList").on('change', function(){getStops();});
+        $("#MainMobileContent_stopList").on('change', function(){getArrivalTimes();});
 
-            if (temp != "") {
-                $.cookie("route", temp, { expires: 30 });
-                getDirections();
-            }
-        });
+        // $("#MainMobileContent_routeList").bind("change", function () {
+        //     var temp = $("#MainContent_routeList").val();
 
-        $("#MainMobileContent_directionList").bind("change", function () {
-            var temp = $("#MainContent_directionList").val();
+        //     if (temp != "") {
+        //         $.cookie("route", temp, { expires: 30 });
+        //         getDirections();
+        //     }
+        // });
 
-            if (temp != "") {
-                $.cookie("direction", temp, { expires: 30 });
-                reset();
+        // $("#MainMobileContent_directionList").bind("change", function () {
+        //     var temp = $("#MainContent_directionList").val();
 
-                if (settings.includeStops)
-                    getStops();
-            }
-        });
+        //     if (temp != "") {
+        //         $.cookie("direction", temp, { expires: 30 });
+        //         reset();
 
-        if (settings.includeStops) {
-            $("#MainMobileContent_stopList").bind("change", function () {
-                var temp = $("#MainMobileContent_stopList").val();
+        //         if (settings.includeStops)
+        //             getStops();
+        //     }
+        // });
 
-                if (temp != "") {
-                    $.cookie("stop", temp, { expires: 30 });
-                    getArrivalTimes();
-                }
-            });
-        }
+        // if (settings.includeStops) {
+        //     $("#MainMobileContent_stopList").bind("change", function () {
+        //         var temp = $("#MainMobileContent_stopList").val();
+
+        //         if (temp != "") {
+        //             $.cookie("stop", temp, { expires: 30 });
+        //             getArrivalTimes();
+        //         }
+        //     });
+        // }
 
         getRoutes();
     }
@@ -225,29 +230,34 @@ TransitMaster.StopTimes = function (options) {
     }
 
     function getRoutes() {
+        alert('1');
         //$("#MainMobileContent_routeList").text("Loading	routes...");
         $("#routeWait").removeClass("hidden");
 
         $.ajax({
-            type: "POST",
-            url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getRoutes",
-            contentType: "application/json;	charset=utf-8",
+            type: "GET",
+            //url: "https://metromap.cityofmadison.com/bustime/api/v3/getroutes?requestType=getroutes&locale=en&key=Qskvu4Z5JDwGEVswqdAVkiA5B&format=json&xtime=1749310074913",
+            url: "https://metromap.cityofmadison.com/bustime/api/v3/getroutes?key=kaUs8RLjZcrzcZCubnejHncNY&rtpidatafeed=bustime&format=json",
+
+            //url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getRoutes",
+            //contentType: "application/json;	charset=utf-8",
             dataType: "json",
             success: function (msg) {
-                if (msg.d == null || msg.d.length == 0) {
+        alert('2');
+
+                if (msg["bustime-response"].routes == null || msg["bustime-response"].routes.length == 0) {
                     $("#MainMobileContent_routeList").text("No routes found");
                     return;
                 }
 
                 var list = $("#MainMobileContent_routeList");
-
+                var routes = msg["bustime-response"].routes;
                 $(list).get(0).options[$(list).get(0).options.length] = new Option("Select a route...", "0");
-                $.each(msg.d, function (index, item) {
-                    $(list).append($("<option />").val(item.id).text(item.name));
+                $.each(routes, function (index, item) {
+                    $(list).append($("<option />").val(item.rt).text(item.rtnm));
                     //$(list).get(0).options[$(list).get(0).options.length] = new Option(item.name, item.id);
                 });
                 $(list).val('0');
-                checkListCookie("route", "MainMobileContent_routeList");
             },
             error: function () {
                 $("#MainMobileContent_routeList").text("Failed to load routes");
@@ -260,159 +270,265 @@ TransitMaster.StopTimes = function (options) {
         $(".dropList").select2();
     }
 
-    function getDirections() {
-        reset();
+function getDirections() {
+reset();
+var url = encodeURI("https://metromap.cityofmadison.com/bustime/api/v3/getdirections?requestType=getdirections&locale=en&rt=" + $("#MainMobileContent_routeList").val() + "&rtpidatafeed=bustime&key=kaUs8RLjZcrzcZCubnejHncNY&format=json");
+$.get(url, function(data) {processXmlDocumentDirections(data); });
+$("span").remove();
+$(".dropList").select2();
+}
 
-        // Clear cookies if	this is	a new selection
-        if (!initialView) {
-            $.cookie("direction", null);
-            $.cookie("stop", null);
-        }
-
-        if (settings.includeStops) {
-            $("#MainMobileContent_stopList").get(0).options.length = 0;
-        }
-
-
-        var list = $("#MainMobileContent_directionList");
-        $(list).empty();
-        $("#MainMobileContent_stopList").empty();
-        $(list).get(0).options.length = 0;
-        //$("#MainMobileContent_directionList").text("Loading	directions...");
-        $("#directionWait").removeClass("hidden");
-
-        $.ajax({
-            type: "POST",
-            url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getDirections",
-            data: "{routeID: " + $("#MainMobileContent_routeList").val() + "}",
-            contentType: "application/json;	charset=utf-8",
-            dataType: "json",
-            success: function (msg) {
-                if (msg.d == null || msg.d.length == 0) {
-                    $("#MainMobileContent_directionList").text("No directions found");
-                    return;
-                }
-
-                $(list).get(0).options[$(list).get(0).options.length] = new Option("Select a direction...", "");
-                $.each(msg.d, function (index, item) {
-                    $(list).append($("<option />").val(item.id).text(item.name));
-                    //$(list).get(0).options[$(list).get(0).options.length] = new Option(item.name, item.id);
-                });
-
-                checkListCookie("direction", "MainMobileContent_directionList");
-
-                if (!settings.includeStops)
-                    initialView = false;
-            },
-            error: function () {
-                $("#MainMobileContent_directionList").text("Failed to load directions");
-            },
-            complete: function (jqXHR, textStatus) {
-                $("#directionWait").addClass("hidden");
-            }
-        });
-        $("span").remove();
-        $(".dropList").select2();
+function processXmlDocumentDirections(result)
+{
+var list = $("#MainMobileContent_directionList");
+$(list).empty();
+$(list).append($("<option disabled/>").val("0").text("- Select Direction -"));
+var jsonSlot = result["bustime-response"].directions;
+if(jsonSlot != null || jsonSlot.length >= 1)
+{
+    for(var i=0; i<jsonSlot.length;i++)
+    {
+        var name = jsonSlot[i].name;
+        var id = jsonSlot[i].id;
+        $(list).append($("<option />").val(id).text(name));
     }
+}
+$(list).val(0);
 
-    function getStops() {
-        // Clear cookies if	this is	a new selection
-        if (!initialView)
-            $.cookie("stop", null);
+}
 
-        var list = $("#MainMobileContent_stopList");
 
-        $(list).get(0).options.length = 0;
-        //$("#MainMobileContent_stopList").text("Loading stops...");
-        $("#stopWait").removeClass("hidden");
+    // function getDirections() {
+    //     reset();
 
-        $.ajax({
-            type: "POST",
-            url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getStops",
-            data: "{routeID: " + $("#MainMobileContent_routeList").val() + ",	directionID: " + $("#MainMobileContent_directionList").val() + "}",
-            contentType: "application/json;	charset=utf-8",
-            dataType: "json",
-            success: function (msg) {
-                if (msg.d == null || msg.d.length == 0) {
-                    $("#MainMobileContent_stopList").text("No stops	found");
-                    return;
-                }
-                $(list).empty();
-                $(list).get(0).options[$(list).get(0).options.length] = new Option("Select a stop...", "");
+    //     // Clear cookies if	this is	a new selection
+    //     if (!initialView) {
+    //         $.cookie("direction", null);
+    //         $.cookie("stop", null);
+    //     }
 
-                $.each(msg.d, function (index, item) {
-                    $(list).append($("<option />").val(item.id).text(item.name));
-                    //$(list).get(0).options[$(list).get(0).options.length] = new Option(item.name, item.id);
-                });
+    //     if (settings.includeStops) {
+    //         $("#MainMobileContent_stopList").get(0).options.length = 0;
+    //     }
 
-                checkListCookie("stop", "MainMobileContent_stopList");
 
-                initialView = false;
-            },
-            error: function () {
-                $("#MainMobileContent_stopList").text("Failed to load stops");
-            },
-            complete: function (jqXHR, textStatus) {
-                $("#stopWait").addClass("hidden");
-            }
-        });
-        $("span").remove();
-        $(".dropList").select2();
-    }
+    //     var list = $("#MainMobileContent_directionList");
+    //     $(list).empty();
+    //     $("#MainMobileContent_stopList").empty();
+    //     $(list).get(0).options.length = 0;
+    //     //$("#MainMobileContent_directionList").text("Loading	directions...");
+    //     $("#directionWait").removeClass("hidden");
 
-    function getArrivalTimes(refresh) {
-        showAd();
-        if (!refresh) {
-            reset(true);
-            $("#stopWait").removeClass("hidden");
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getDirections",
+    //         data: "{routeID: " + $("#MainMobileContent_routeList").val() + "}",
+    //         contentType: "application/json;	charset=utf-8",
+    //         dataType: "json",
+    //         success: function (msg) {
+    //             if (msg.d == null || msg.d.length == 0) {
+    //                 $("#MainMobileContent_directionList").text("No directions found");
+    //                 return;
+    //             }
+
+    //             $(list).get(0).options[$(list).get(0).options.length] = new Option("Select a direction...", "");
+    //             $.each(msg.d, function (index, item) {
+    //                 $(list).append($("<option />").val(item.id).text(item.name));
+    //                 //$(list).get(0).options[$(list).get(0).options.length] = new Option(item.name, item.id);
+    //             });
+
+    //             checkListCookie("direction", "MainMobileContent_directionList");
+
+    //             if (!settings.includeStops)
+    //                 initialView = false;
+    //         },
+    //         error: function () {
+    //             $("#MainMobileContent_directionList").text("Failed to load directions");
+    //         },
+    //         complete: function (jqXHR, textStatus) {
+    //             $("#directionWait").addClass("hidden");
+    //         }
+    //     });
+    //     $("span").remove();
+    //     $(".dropList").select2();
+    // }
+
+    // function getStops() {
+    //     // Clear cookies if	this is	a new selection
+    //     if (!initialView)
+    //         $.cookie("stop", null);
+
+    //     var list = $("#MainMobileContent_stopList");
+
+    //     $(list).get(0).options.length = 0;
+    //     //$("#MainMobileContent_stopList").text("Loading stops...");
+    //     $("#stopWait").removeClass("hidden");
+
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getStops",
+    //         data: "{routeID: " + $("#MainMobileContent_routeList").val() + ",	directionID: " + $("#MainMobileContent_directionList").val() + "}",
+    //         contentType: "application/json;	charset=utf-8",
+    //         dataType: "json",
+    //         success: function (msg) {
+    //             if (msg.d == null || msg.d.length == 0) {
+    //                 $("#MainMobileContent_stopList").text("No stops	found");
+    //                 return;
+    //             }
+    //             $(list).empty();
+    //             $(list).get(0).options[$(list).get(0).options.length] = new Option("Select a stop...", "");
+
+    //             $.each(msg.d, function (index, item) {
+    //                 $(list).append($("<option />").val(item.id).text(item.name));
+    //                 //$(list).get(0).options[$(list).get(0).options.length] = new Option(item.name, item.id);
+    //             });
+
+    //             checkListCookie("stop", "MainMobileContent_stopList");
+
+    //             initialView = false;
+    //         },
+    //         error: function () {
+    //             $("#MainMobileContent_stopList").text("Failed to load stops");
+    //         },
+    //         complete: function (jqXHR, textStatus) {
+    //             $("#stopWait").addClass("hidden");
+    //         }
+    //     });
+    //     $("span").remove();
+    //     $(".dropList").select2();
+    // }
+
+    // function getArrivalTimes(refresh) {
+    //     showAd();
+    //     if (!refresh) {
+    //         reset(true);
+    //         $("#stopWait").removeClass("hidden");
+    //     }
+
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getStopTimes",
+    //         data: "{routeID: " + $("#MainMobileContent_routeList").val() + ",	directionID: " + $("#MainMobileContent_directionList").val() + ",	stopID:	" + $("#MainMobileContent_stopList").val() + ", useArrivalTimes:	" + settings.arrivals + "}",
+    //         contentType: "application/json;	charset=utf-8",
+    //         dataType: "json",
+    //         success: function (msg) {
+    //             if (msg.d == null) {
+    //                 msg.d = { errorMessage: "Sorry, an	internal error has occurred" };
+    //             }
+
+	// 			if (msg.d.errorMessage == null && (msg.d.routeStops == null || msg.d.routeStops[0].stops == null || msg.d.routeStops[0].stops[0].crossings == null || msg.d.routeStops[0].stops[0].crossings.length == 0))
+	// 				msg.d.errorMessage = "No upcoming stop times found";
+
+    //             if (msg.d.errorMessage != null) {
+    //                 displayError(msg.d.errorMessage);
+    //                 return;
+    //             }
+
+	// 			msg.d.stops = msg.d.routeStops[0].stops;
+
+	// 			var count = msg.d.stops[0].crossings.length;
+	// 			msg.d.heading = "Next " + (count > 1 ? count : "") + " Vehicle " + settings.headingLabel + (count > 1 ? "s" : "");
+
+    //             var result = $("#stopTemplate").render(msg.d);
+
+    //             if (refresh)
+    //                 $("#resultBox").html($(result).html());
+    //             else
+    //                 displayResultsBox(result);
+
+    //             if (!refresh)
+    //                 timer = window.setInterval(function () {
+    //                     getArrivalTimes(true);
+    //                 }, 30000);
+    //         },
+    //         error: function () {
+    //             displayError("Failed to	load stop times");
+    //         },
+    //         complete: function (jqXHR, textStatus) {
+    //             $("#stopWait").addClass("hidden");
+    //         }
+    //     });
+    //     $("span").remove();
+    //     $(".dropList").select2();
+    // }
+
+function getStops()
+{
+    reset();
+    var url = encodeURI("https://metromap.cityofmadison.com/bustime/api/v3/getstops?requestType=getstops&locale=en&rt=" + $("#MainMobileContent_routeList").val() + "&dir=" + $("#MainMobileContent_directionList").val() + "&rtpidatafeed=bustime&key=kaUs8RLjZcrzcZCubnejHncNY&format=json");
+    $.get(url, function(data) {  processXmlDocumentStops(data); });
+    $("span").remove();
+    $(".dropList").select2();
+}
+
+function processXmlDocumentStops(result)
+{
+    var list = $("#MainMobileContent_stopList");
+    $(list).empty();
+    $(list).append($("<option disabled/>").val("0").text("- Select Stop -"));
+    var jsonSlot = result["bustime-response"].stops;
+    if(jsonSlot != null || jsonSlot.length >= 1)
+    {
+        for(var i=0; i<jsonSlot.length;i++)
+        {
+            var name = jsonSlot[i].stpnm;
+            var id = jsonSlot[i].stpid;
+            $(list).append($("<option />").val(id).text(name));
         }
-
-        $.ajax({
-            type: "POST",
-            url: "http://webwatch.cityofmadison.com/TMWebWatch/Arrivals.aspx/getStopTimes",
-            data: "{routeID: " + $("#MainMobileContent_routeList").val() + ",	directionID: " + $("#MainMobileContent_directionList").val() + ",	stopID:	" + $("#MainMobileContent_stopList").val() + ", useArrivalTimes:	" + settings.arrivals + "}",
-            contentType: "application/json;	charset=utf-8",
-            dataType: "json",
-            success: function (msg) {
-                if (msg.d == null) {
-                    msg.d = { errorMessage: "Sorry, an	internal error has occurred" };
-                }
-
-				if (msg.d.errorMessage == null && (msg.d.routeStops == null || msg.d.routeStops[0].stops == null || msg.d.routeStops[0].stops[0].crossings == null || msg.d.routeStops[0].stops[0].crossings.length == 0))
-					msg.d.errorMessage = "No upcoming stop times found";
-
-                if (msg.d.errorMessage != null) {
-                    displayError(msg.d.errorMessage);
-                    return;
-                }
-
-				msg.d.stops = msg.d.routeStops[0].stops;
-
-				var count = msg.d.stops[0].crossings.length;
-				msg.d.heading = "Next " + (count > 1 ? count : "") + " Vehicle " + settings.headingLabel + (count > 1 ? "s" : "");
-
-                var result = $("#stopTemplate").render(msg.d);
-
-                if (refresh)
-                    $("#resultBox").html($(result).html());
-                else
-                    displayResultsBox(result);
-
-                if (!refresh)
-                    timer = window.setInterval(function () {
-                        getArrivalTimes(true);
-                    }, 30000);
-            },
-            error: function () {
-                displayError("Failed to	load stop times");
-            },
-            complete: function (jqXHR, textStatus) {
-                $("#stopWait").addClass("hidden");
-            }
-        });
-        $("span").remove();
-        $(".dropList").select2();
     }
+    $(list).val(0);
+}
+
+function getArrivalTimes() {
+showAd();
+reset();   
+//var allRoutes = document.getElementById('allRoutes');
+var url = encodeURI("https://metromap.cityofmadison.com/bustime/api/v3/getpredictions?requestType=getpredictions&locale=en&stpid=" + $("#MainMobileContent_stopList").val() + "&rt=" + $("#MainMobileContent_routeList").val() + "&dir=" + $("#MainMobileContent_directionList").val() + "&rtpidatafeed=bustime&key=kaUs8RLjZcrzcZCubnejHncNY&format=json");
+        
+// if (allRoutes != null) {
+//     if (allRoutes.checked) {
+//         url = encodeURI("https://metromap.cityofmadison.com/bustime/api/v3/getpredictions?requestType=getpredictions&locale=en&stpid=" + $("#MainMobileContent_stopList").val() + "&rtpidatafeed=bustime&key=uR2atLdE8JtiTVjXhrxDE2Yz9&format=json");
+//     }
+// }
+
+$.get(url, function(data) {  
+    processXmlDocumentPredictions(data); 
+});       
+$("span").remove();
+$(".dropList").select2();
+}
+
+function processXmlDocumentPredictions(result)
+{
+    var outputContainer = $('#contentBox');
+    //var outputContainer = document.getElementById("contentBox");
+    var predsTag = result["bustime-response"].prd;
+    var results = '<h2 style="text-align:center;"><button onclick="saveFavorites();" id="btnSave" style="border:none; background-color: lightgreen; color:black;">&#x2764; Add to favorites</button></h2>'
+    results = results + '<table id="tblResults" cellpadding="0" cellspacing="0">';
+    //var results = '<table id="tblResults" cellpadding="0" cellspacing="0">';
+    if(predsTag != null && predsTag.length >= 1)
+    {
+        //document.getElementById('btnSubscribe').style.visibility = "none";
+        results = results.concat('<tr class="header"><th>ROUTE</th><th>DESTINATION</th><th>ARRIVAL</th></tr><tr><td class="spacer" colspan="3"></td></tr>');
+        for(var i=0; i<predsTag.length;i++)
+        {
+            var arrival = predsTag[i].prdctdn;
+            var route = predsTag[i].rt;
+            var destination = predsTag[i].des;
+            results = results.concat('<tr class="predictions">');
+            results = results.concat("<td>" + route + "</td>" + "<td>" + destination + "</td>" + "<td>" + arrival + "</td>");
+            results = results.concat('</tr><tr><td class="spacer" colspan="3"></td></tr>');
+        }
+    }
+    else
+    {
+        results = results.concat("<tr><td>No upcoming arrivals</td></tr>");
+    }
+    results = results + "</table>";
+    $(outputContainer).append(results);
+    //outputContainer.innerHTML += results;
+
+}
 
     function displayError(error) {
         reset(true);
