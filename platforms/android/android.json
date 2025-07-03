@@ -179,10 +179,10 @@
     "cordova-plugin-inappbrowser": {
       "PACKAGE_NAME": "com.madison.free"
     },
-    "cordova-plugin-purchase": {
+    "cordova-plugin-wkwebview-file-xhr": {
       "PACKAGE_NAME": "com.madison.free"
     },
-    "cordova-plugin-wkwebview-file-xhr": {
+    "cordova-plugin-purchase": {
       "PACKAGE_NAME": "com.madison.free"
     }
   },
@@ -309,7 +309,7 @@
     "cordova-support-android-plugin": "2.0.4",
     "cordova-plugin-idfa": "3.0.0",
     "cordova-plugin-inappbrowser": "6.0.0",
-    "cordova-plugin-purchase": "13.11.1",
-    "cordova-plugin-wkwebview-file-xhr": "3.1.1"
+    "cordova-plugin-wkwebview-file-xhr": "3.1.1",
+    "cordova-plugin-purchase": "13.12.1"
   }
 }

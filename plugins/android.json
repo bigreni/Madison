@@ -36,10 +36,10 @@
     "cordova-plugin-nativestorage": {
       "PACKAGE_NAME": "com.madison.free"
     },
-    "cordova-plugin-purchase": {
+    "cordova-plugin-wkwebview-file-xhr": {
       "PACKAGE_NAME": "com.madison.free"
     },
-    "cordova-plugin-wkwebview-file-xhr": {
+    "cordova-plugin-purchase": {
       "PACKAGE_NAME": "com.madison.free"
     }
   },

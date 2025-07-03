@@ -24,9 +24,6 @@
     <feature name="InAppBrowser">
         <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser" />
     </feature>
-    <feature name="InAppBillingPlugin">
-        <param name="android-package" value="cc.fovea.PurchasePlugin" />
-    </feature>
     <name>Madison Bus Tracker</name>
     <description>
         Bus App.
@@ -90,4 +87,7 @@
     <preference name="InterceptRemoteRequests" value="all" />
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/screen/android/screen-all.png" />
     <preference name="AndroidWindowSplashScreenAnimationDuration" value="1" />
+    <feature name="InAppBillingPlugin">
+        <param name="android-package" value="cc.fovea.PurchasePlugin" />
+    </feature>
 </widget>
