@@ -18,9 +18,9 @@ function initApp() {
         else if(/(ipod|iphone|ipad)/i.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document)) {
             interstitial = new admob.InterstitialAd({
                 //dev
-                adUnitId: 'ca-app-pub-3940256099942544/4411468910'
+                //adUnitId: 'ca-app-pub-3940256099942544/4411468910'
                 //prod
-                //adUnitId: 'ca-app-pub-9249695405712287/1630009581'
+                adUnitId: 'ca-app-pub-9249695405712287/1630009581'
                 });
         }
         registerAdEvents();
@@ -313,7 +313,7 @@ function processXmlDocumentPredictions(result)
     var outputContainer = $('#contentBox');
     //var outputContainer = document.getElementById("contentBox");
     var predsTag = result["bustime-response"].prd;
-    var results = '<div id="resultBox"><h2 style="text-align:center;"><button onclick="saveFavorites();" id="btnSave" style="border:none; background-color: lightgreen; color:black;">&#x2764; Add to favorites</button></h2>'
+    var results = '<div id="resultBox"><h2 style="text-align:center;"><button onclick="saveFavorites();" id="btnSave" style="border:none; background-color: lightgreen; color:black;">&#x2764; Add to favorites</button></h2><label id="message" style="font-size: large;"></label>'
     results = results + '<table id="tblResults" cellpadding="0" cellspacing="0">';
     //var results = '<table id="tblResults" cellpadding="0" cellspacing="0">';
     if(predsTag != null && predsTag.length >= 1)
